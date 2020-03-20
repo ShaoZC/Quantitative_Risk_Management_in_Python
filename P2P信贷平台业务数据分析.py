@@ -74,7 +74,7 @@ matplotlib.pyplot.figure(figsize=(15, 8))
 matplotlib.pyplot.bar(age_idx, age_percent)
 for (a, b) in zip(age_idx, age_percent):
     matplotlib.pyplot.text(a, b+0.001, '%.2f%%' % (b * 100), ha='center', va='bottom', fontsize=10)
-matplotlib.pyplot.show()
+# matplotlib.pyplot.show()
 
 
 
@@ -82,7 +82,7 @@ from datetime import datetime
 
 #分析每日贷款金额的走势
 loan = LC[['借款成功日期', '借款金额']].copy()
-loan['借款日期'] = pd.to_datetime(loan['借款成功日期'])
+loan['借款日期'] = pandas.to_datetime(loan['借款成功日期'])
 loan1 = loan.pivot_table(index='借款日期', aggfunc='sum').copy()
 matplotlib.pyplot.figure(figsize=(15, 6))
 matplotlib.pyplot.subplot(1,2,1)
@@ -107,3 +107,64 @@ loan3 = loan1.loc['2017-01']
 avg = loan3['借款金额'].mean()
 std = loan3['借款金额'].std()
 print(avg, std)
+
+# 初始评级的数据划分
+level_idx = ('A', 'B', 'C', 'D', 'E', 'F')
+lev = []
+for i in level_idx:
+    temp = LC[LC['初始评级'] == i]
+    lev.append(temp)
+
+# 借款类型的数据划分
+kind_idx = ('电商', 'APP闪电', '普通', '其他')
+kind = []
+for i in kind_idx:
+    temp = LC[LC['借款类型'] == i]
+    kind.append(temp)
+
+# 不同借款金额的数据划分
+amount_idx = ('0-2000', '2000-3000', '3000-4000', '4000-5000', '5000-6000', '6000+')
+amountA = LC.loc[(LC['借款金额'] > 0) & (LC['借款金额'] < 2000)]
+amountB = LC.loc[(LC['借款金额'] >= 2000) & (LC['借款金额'] < 3000)]
+amountC = LC.loc[(LC['借款金额'] >= 3000) & (LC['借款金额'] < 4000)]
+amountD = LC.loc[(LC['借款金额'] >= 4000) & (LC['借款金额'] < 5000)]
+amountE = LC.loc[(LC['借款金额'] >= 5000) & (LC['借款金额'] < 6000)]
+amountF = LC.loc[(LC['借款金额'] >= 6000)]
+amount = (amountA, amountB, amountC, amountD, amountE, amountF)
+
+LC['逾期还款率'] = LC['历史逾期还款期数'] / (LC['历史逾期还款期数'] + LC['历史正常还款期数']) * 100
+
+
+# 逾期还款率的分析图
+def depayplot(i, idx, data, xlabel, title, index):
+    depay = []
+    for a in data:
+        tmp = a[index].mean()
+        depay.append(tmp)
+    matplotlib.pyplot.subplot(2, 3, i)
+    matplotlib.pyplot.bar(idx, depay)
+    for (a, b) in zip(idx, depay):
+        matplotlib.pyplot.text(a, b + 0.001, '%.2f%%' % b, ha='center', va='bottom', fontsize=10)
+    matplotlib.pyplot.xlabel(xlabel)
+    matplotlib.pyplot.ylabel(index)
+    matplotlib.pyplot.title(title)
+
+
+matplotlib.pyplot.figure(figsize=(15, 10))
+index = '逾期还款率'
+# 根据初始评级对逾期还款率进行分析
+depayplot(1, level_idx, lev, '初始评级', '不同初始评级客户逾期还款率', index)
+
+# 根据年龄对逾期还款率进行分析
+depayplot(2, age_idx, age, '年龄', '不同年龄客户逾期还款率', index)
+
+# 根据借款类型对逾期还款率进行分析
+depayplot(3, kind_idx, kind, '借款类型', '不同借款类型客户逾期还款率', index)
+
+# 根据性别对逾期还款率进行分析
+depayplot(4, sex_idx, sex, '性别', '不同性别客户逾期还款率', index)
+
+# 根据借款金额对逾期还款率进行分析
+depayplot(5, amount_idx, amount, '借款金额', '不同借款金额客户逾期还款率', index)
+
+matplotlib.pyplot.show()
