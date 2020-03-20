@@ -128,3 +128,12 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .vscode/launch.json
+data_paipai/LCIS数据字典.xlsx
+data_paipai/LCLP数据字典.xlsx
+data_paipai/数据说明.docx
+data_paipai/LC.csv
+data_paipai/LC.csv
+data_paipai/LCIS.csv
+data_paipai/readme.txt
+data_paipai/LP.csv
+data_paipai/~$数据说明.docx
